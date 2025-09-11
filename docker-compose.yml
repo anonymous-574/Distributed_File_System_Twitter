@@ -1,0 +1,172 @@
+version: '3.8'
+
+services:
+  # Hadoop NameNode
+  namenode:
+    image: apache/hadoop:3
+    container_name: namenode
+    environment:
+      - CLUSTER_NAME=hadoop-cluster
+    env_file:
+      - ./hadoop.env
+    ports:
+      - "9870:9870"
+      - "9000:9000"
+    volumes:
+      - namenode_data:/opt/hadoop/dfs/name
+    command: ["hdfs", "namenode"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9870/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Hadoop DataNode 1
+  datanode1:
+    image: apache/hadoop:3
+    container_name: datanode1
+    environment:
+      - CLUSTER_NAME=hadoop-cluster
+    env_file:
+      - ./hadoop.env
+    ports:
+      - "9864:9864"
+    volumes:
+      - datanode1_data:/opt/hadoop/dfs/data
+    command: ["hdfs", "datanode"]
+    depends_on:
+      - namenode
+
+  # Hadoop DataNode 2
+  datanode2:
+    image: apache/hadoop:3
+    container_name: datanode2
+    environment:
+      - CLUSTER_NAME=hadoop-cluster
+    env_file:
+      - ./hadoop.env
+    ports:
+      - "9865:9864"
+    volumes:
+      - datanode2_data:/opt/hadoop/dfs/data
+    command: ["hdfs", "datanode"]
+    depends_on:
+      - namenode
+
+  # Hadoop DataNode 3
+  datanode3:
+    image: apache/hadoop:3
+    container_name: datanode3
+    environment:
+      - CLUSTER_NAME=hadoop-cluster
+    env_file:
+      - ./hadoop.env
+    ports:
+      - "9866:9864"
+    volumes:
+      - datanode3_data:/opt/hadoop/dfs/data
+    command: ["hdfs", "datanode"]
+    depends_on:
+      - namenode
+
+  # Application Server 1
+  app_server1:
+    build: 
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: app_server1
+    environment:
+      - SERVER_ID=1
+      - SERVER_PORT=5001
+      - HADOOP_NAMENODE_URL=http://namenode:9870
+      - HDFS_URL=hdfs://namenode:9000
+    ports:
+      - "5001:5001"
+    depends_on:
+      - namenode
+      - datanode1
+      - datanode2
+      - datanode3
+    volumes:
+      - app1_data:/app/data
+
+  # Application Server 2
+  app_server2:
+    build: 
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: app_server2
+    environment:
+      - SERVER_ID=2
+      - SERVER_PORT=5002
+      - HADOOP_NAMENODE_URL=http://namenode:9870
+      - HDFS_URL=hdfs://namenode:9000
+    ports:
+      - "5002:5002"
+    depends_on:
+      - namenode
+      - datanode1
+      - datanode2
+      - datanode3
+    volumes:
+      - app2_data:/app/data
+
+  # Application Server 3
+  app_server3:
+    build: 
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: app_server3
+    environment:
+      - SERVER_ID=3
+      - SERVER_PORT=5003
+      - HADOOP_NAMENODE_URL=http://namenode:9870
+      - HDFS_URL=hdfs://namenode:9000
+    ports:
+      - "5003:5003"
+    depends_on:
+      - namenode
+      - datanode1
+      - datanode2
+      - datanode3
+    volumes:
+      - app3_data:/app/data
+
+  # Load Balancer / API Gateway
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    container_name: gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - app_server1
+      - app_server2
+      - app_server3
+    environment:
+      - APP_SERVERS=app_server1:5001,app_server2:5002,app_server3:5003
+
+  # Frontend Web Server
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - gateway
+
+volumes:
+  namenode_data:
+  datanode1_data:
+  datanode2_data:
+  datanode3_data:
+  app1_data:
+  app2_data:
+  app3_data:
+
+networks:
+  default:
+    driver: bridge

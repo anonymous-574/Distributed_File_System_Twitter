@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distributed Social Media</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stats {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .post-form {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(116, 185, 255, 0.3);
+        }
+
+        .post-form h3 {
+            color: white;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            background: white;
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #fd79a8, #fdcb6e);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(253, 121, 168, 0.4);
+        }
+
+        .posts-section {
+            margin-top: 30px;
+        }
+
+        .posts-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #74b9ff;
+            padding-bottom: 10px;
+        }
+
+        .post {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid #74b9ff;
+            transition: all 0.3s ease;
+        }
+
+        .post:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .post-user {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .post-time {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .post-content {
+            color: #444;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .post-meta {
+            color: #888;
+            font-size: 0.8em;
+            margin-bottom: 10px;
+        }
+
+        .comments-section {
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .comment {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid #74b9ff;
+        }
+
+        .comment-header {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .comment-content {
+            color: #555;
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+
+        .comment-form {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .error {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .success {
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(45deg, #a29bfe, #6c5ce7);
+            float: right;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 Distributed Social Media</h1>
+        
+        <div id="stats" class="stats">
+            Loading system statistics...
+        </div>
+        
+        <div class="post-form">
+            <h3>📝 Create New Post</h3>
+            <form id="postForm">
+                <div class="form-group">
+                    <input type="text" id="username" placeholder="Your username" required>
+                </div>
+                <div class="form-group">
+                    <textarea id="content" placeholder="What's on your mind?" required></textarea>
+                </div>
+                <button type="submit" class="btn">Post</button>
+            </form>
+        </div>
+        
+        <div id="messages"></div>
+        
+        <div class="posts-section">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3>📰 All Posts</h3>
+                <button onclick="loadPosts()" class="btn refresh-btn">🔄 Refresh</button>
+            </div>
+            
+            <div id="posts" class="loading">
+                Loading posts...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        
+        // Load system statistics
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                const stats = await response.json();
+                
+                document.getElementById('stats').innerHTML = `
+                    📊 System Stats: ${stats.healthy_servers}/${stats.total_servers} servers healthy | 
+                    📝 Total Posts: ${stats.total_posts} | 
+                    🔄 Load Balanced Across ${stats.healthy_servers} Servers
+                `;
+            } catch (error) {
+                document.getElementById('stats').innerHTML = '❌ Unable to load system statistics';
+            }
+        }
+        
+        // Load all posts
+        async function loadPosts() {
+            const postsContainer = document.getElementById('posts');
+            postsContainer.innerHTML = '<div class="loading">Loading posts...</div>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/posts`);
+                const data = await response.json();
+                
+                if (data.posts && data.posts.length > 0) {
+                    postsContainer.innerHTML = '';
+                    
+                    for (const post of data.posts) {
+                        const postElement = await createPostElement(post);
+                        postsContainer.appendChild(postElement);
+                    }
+                } else {
+                    postsContainer.innerHTML = '<div class="loading">No posts available. Be the first to post!</div>';
+                }
+            } catch (error) {
+                postsContainer.innerHTML = '<div class="error">❌ Failed to load posts: ' + error.message + '</div>';
+            }
+        }
+        
+        // Create post element
+        async function createPostElement(post) {
+            const postDiv = document.createElement('div');
+            postDiv.className = 'post';
+            
+            // Load comments for this post
+            const comments = await loadComments(post.id);
+            
+            postDiv.innerHTML = `
+                <div class="post-header">
+                    <span class="post-user">👤 ${post.user}</span>
+                    <span class="post-time">${formatDate(post.timestamp)}</span>
+                </div>
+                <div class="post-content">${post.content}</div>
+                <div class="post-meta">🖥️ Server: ${post.server_id} | 💬 ${comments.length} comments</div>
+                <div class="comments-section">
+                    <div id="comments-${post.id}">
+                        ${comments.map(comment => `
+                            <div class="comment">
+                                <div class="comment-header">👤 ${comment.user} - ${formatDate(comment.timestamp)}</div>
+                                <div class="comment-content">${comment.content}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="comment-form">
+                        <form onsubmit="addComment(event, '${post.id}')">
+                            <div class="form-group">
+                                <input type="text" placeholder="Your username" required name="username" style="margin-bottom: 10px;">
+                            </div>
+                            <div class="form-group">
+                                <textarea placeholder="Add a comment..." required name="content"></textarea>
+                            </div>
+                            <button type="submit" class="btn" style="padding: 8px 20px; font-size: 14px;">💬 Comment</button>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            return postDiv;
+        }
+        
+        // Load comments for a post
+        async function loadComments(postId) {
+            try {
+                const response = await fetch(`${API_BASE}/posts/${postId}/comments`);
+                const data = await response.json();
+                return data.comments || [];
+            } catch (error) {
+                console.error('Failed to load comments:', error);
+                return [];
+            }
+        }
+        
+        // Add comment to post
+        async function addComment(event, postId) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            
+            const commentData = {
+                user: formData.get('username'),
+                content: formData.get('content')
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/posts/${postId}/comments`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(commentData)
+                });
+                
+                if (response.ok) {
+                    showMessage('✅ Comment added successfully!', 'success');
+                    form.reset();
+                    // Reload posts to show new comment
+                    loadPosts();
+                } else {
+                    const error = await response.json();
+                    showMessage('❌ Failed to add comment: ' + (error.error || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Failed to add comment: ' + error.message, 'error');
+            }
+        }
+        
+        // Handle post form submission
+        document.getElementById('postForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const content = document.getElementById('content').value.trim();
+            
+            if (!username || !content) {
+                showMessage('❌ Please fill in all fields', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/posts`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user: username,
+                        content: content
+                    })
+                });
+                
+                if (response.ok) {
+                    showMessage('✅ Post created successfully!', 'success');
+                    document.getElementById('postForm').reset();
+                    loadPosts();
+                    loadStats(); // Refresh stats
+                } else {
+                    const error = await response.json();
+                    showMessage('❌ Failed to create post: ' + (error.error || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Failed to create post: ' + error.message, 'error');
+            }
+        });
+        
+        // Show message to user
+        function showMessage(message, type = 'info') {
+            const messagesContainer = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type;
+            messageDiv.textContent = message;
+            
+            messagesContainer.appendChild(messageDiv);
+            
+            // Remove message after 5 seconds
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.parentNode.removeChild(messageDiv);
+                }
+            }, 5000);
+        }
+        
+        // Format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString();
+        }
+        
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            loadPosts();
+            
+            // Refresh stats and posts every 30 seconds
+            setInterval(() => {
+                loadStats();
+            }, 30000);
+        });
+    </script>
+</body>
+</html>
