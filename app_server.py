@@ -5,8 +5,8 @@ import uuid
 from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from client import HDFSClient
-from model import Post, Comment
+from hdfs_client import HDFSClient
+from models import Post, Comment
 
 class SocialMediaServer:
     def __init__(self, server_id):
