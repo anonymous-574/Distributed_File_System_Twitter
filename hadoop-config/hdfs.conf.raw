@@ -1,0 +1,3 @@
+dfs_replication: 2
+dfs_permissions_enabled: false
+dfs_webhdfs_enabled: true

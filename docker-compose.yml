@@ -1,73 +1,74 @@
 version: '3.8'
 
 services:
-  # Hadoop NameNode
+  # Hadoop NameNode - Simplified approach
   namenode:
-    image: apache/hadoop:3
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
     container_name: namenode
     ports:
       - "9870:9870"
       - "9000:9000"
     volumes:
-      - namenode_data:/opt/hadoop/dfs/name
-      - ./hadoop-config/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
-      - ./hadoop-config/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
-      - ./hadoop-config/yarn-site.xml:/opt/hadoop/etc/hadoop/yarn-site.xml
-      - ./hadoop-config/mapred-site.xml:/opt/hadoop/etc/hadoop/mapred-site.xml
-    command: ["/opt/hadoop/sbin/hadoop-daemon.sh", "start", "namenode"]
+      - namenode_data:/hadoop/dfs/name
+    environment:
+      - CLUSTER_NAME=test
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - CORE_CONF_hadoop_http_staticuser_user=root
+      - HDFS_CONF_dfs_webhdfs_enabled=true
+      - HDFS_CONF_dfs_permissions_enabled=false
+      - HDFS_CONF_dfs_replication=2
+      - HDFS_CONF_dfs_namenode_datanode_registration_ip___hostname___check=false
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9870/ || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
+      start_period: 60s
 
-  # Hadoop DataNode 1
+  # DataNode 1
   datanode1:
-    image: apache/hadoop:3
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
     container_name: datanode1
     ports:
       - "9864:9864"
     volumes:
-      - datanode1_data:/opt/hadoop/dfs/data
-      - ./hadoop-config/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
-      - ./hadoop-config/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
-      - ./hadoop-config/yarn-site.xml:/opt/hadoop/etc/hadoop/yarn-site.xml
-      - ./hadoop-config/mapred-site.xml:/opt/hadoop/etc/hadoop/mapred-site.xml
-    command: ["/opt/hadoop/sbin/hadoop-daemon.sh", "start", "datanode"]
+      - datanode1_data:/hadoop/dfs/data
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - HDFS_CONF_dfs_datanode_data_dir=file:///hadoop/dfs/data
     depends_on:
-      - namenode
+      namenode:
+        condition: service_healthy
 
-  # Hadoop DataNode 2
+  # DataNode 2
   datanode2:
-    image: apache/hadoop:3
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
     container_name: datanode2
     ports:
       - "9865:9864"
     volumes:
-      - datanode2_data:/opt/hadoop/dfs/data
-      - ./hadoop-config/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
-      - ./hadoop-config/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
-      - ./hadoop-config/yarn-site.xml:/opt/hadoop/etc/hadoop/yarn-site.xml
-      - ./hadoop-config/mapred-site.xml:/opt/hadoop/etc/hadoop/mapred-site.xml
-    command: ["/opt/hadoop/sbin/hadoop-daemon.sh", "start", "datanode"]
+      - datanode2_data:/hadoop/dfs/data
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - HDFS_CONF_dfs_datanode_data_dir=file:///hadoop/dfs/data
     depends_on:
-      - namenode
+      namenode:
+        condition: service_healthy
 
-  # Hadoop DataNode 3
+  # DataNode 3
   datanode3:
-    image: apache/hadoop:3
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
     container_name: datanode3
     ports:
       - "9866:9864"
     volumes:
-      - datanode3_data:/opt/hadoop/dfs/data
-      - ./hadoop-config/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
-      - ./hadoop-config/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml
-      - ./hadoop-config/yarn-site.xml:/opt/hadoop/etc/hadoop/yarn-site.xml
-      - ./hadoop-config/mapred-site.xml:/opt/hadoop/etc/hadoop/mapred-site.xml
-    command: ["/opt/hadoop/sbin/hadoop-daemon.sh", "start", "datanode"]
+      - datanode3_data:/hadoop/dfs/data
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - HDFS_CONF_dfs_datanode_data_dir=file:///hadoop/dfs/data
     depends_on:
-      - namenode
+      namenode:
+        condition: service_healthy
 
   # Application Servers
   app_server1:
@@ -80,15 +81,15 @@ services:
       - SERVER_PORT=5001
       - HADOOP_NAMENODE_URL=http://namenode:9870
       - HDFS_URL=hdfs://namenode:9000
+      - PYTHONUNBUFFERED=1
     ports:
       - "5001:5001"
     depends_on:
-      - namenode
-      - datanode1
-      - datanode2
-      - datanode3
+      namenode:
+        condition: service_healthy
     volumes:
       - app1_data:/app/data
+    restart: unless-stopped
 
   app_server2:
     build: 
@@ -100,15 +101,15 @@ services:
       - SERVER_PORT=5002
       - HADOOP_NAMENODE_URL=http://namenode:9870
       - HDFS_URL=hdfs://namenode:9000
+      - PYTHONUNBUFFERED=1
     ports:
       - "5002:5002"
     depends_on:
-      - namenode
-      - datanode1
-      - datanode2
-      - datanode3
+      namenode:
+        condition: service_healthy
     volumes:
       - app2_data:/app/data
+    restart: unless-stopped
 
   app_server3:
     build: 
@@ -120,15 +121,15 @@ services:
       - SERVER_PORT=5003
       - HADOOP_NAMENODE_URL=http://namenode:9870
       - HDFS_URL=hdfs://namenode:9000
+      - PYTHONUNBUFFERED=1
     ports:
       - "5003:5003"
     depends_on:
-      - namenode
-      - datanode1
-      - datanode2
-      - datanode3
+      namenode:
+        condition: service_healthy
     volumes:
       - app3_data:/app/data
+    restart: unless-stopped
 
   # API Gateway
   gateway:
@@ -144,6 +145,8 @@ services:
       - app_server3
     environment:
       - APP_SERVERS=app_server1:5001,app_server2:5002,app_server3:5003
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
 
   # Frontend
   frontend:
@@ -155,6 +158,7 @@ services:
       - "3000:80"
     depends_on:
       - gateway
+    restart: unless-stopped
 
 volumes:
   namenode_data:
