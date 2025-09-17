@@ -8,25 +8,25 @@ def test_system():
     
     gateway_url = "http://localhost:8080/api"
     
-    print("🧪 Testing Distributed Social Media System")
+    print(" Testing Distributed Social Media System")
     print("=" * 50)
     
     # Test 1: Check system health
-    print("\n1️⃣ Testing System Health...")
+    print("\n1️ Testing System Health...")
     try:
         response = requests.get(f"{gateway_url}/../health")
         if response.status_code == 200:
             health_data = response.json()
-            print(f"✅ Gateway healthy")
-            print(f"📊 Healthy servers: {len([s for s in health_data['servers'] if s['healthy']])}/3")
+            print(f" Gateway healthy")
+            print(f" Healthy servers: {len([s for s in health_data['servers'] if s['healthy']])}/3")
         else:
-            print(f"❌ Gateway health check failed")
+            print(f" Gateway health check failed")
     except Exception as e:
-        print(f"❌ Failed to connect to gateway: {e}")
+        print(f" Failed to connect to gateway: {e}")
         return
     
     # Test 2: Create test posts
-    print("\n2️⃣ Testing Post Creation (Load Balancing)...")
+    print("\n2️ Testing Post Creation (Load Balancing)...")
     test_users = ["Alice", "Bob", "Charlie", "Diana", "Eve"]
     test_posts = [
         "Hello from the distributed system! 🌐",
@@ -50,32 +50,32 @@ def test_system():
             if response.status_code == 201:
                 result = response.json()
                 created_posts.append(result.get('post_id'))
-                print(f"✅ Post created by {user} on server {result.get('server_id', 'unknown')}")
+                print(f" Post created by {user} on server {result.get('server_id', 'unknown')}")
             else:
-                print(f"❌ Failed to create post: {response.text}")
+                print(f" Failed to create post: {response.text}")
         except Exception as e:
-            print(f"❌ Error creating post: {e}")
+            print(f" Error creating post: {e}")
         
         time.sleep(1)  # Small delay between requests
     
     # Test 3: Retrieve all posts
-    print("\n3️⃣ Testing Post Retrieval (Data Aggregation)...")
+    print("\n3️ Testing Post Retrieval (Data Aggregation)...")
     try:
         response = requests.get(f"{gateway_url}/posts")
         if response.status_code == 200:
             data = response.json()
-            print(f"✅ Retrieved {data['total_count']} posts from {data['servers_queried']} servers")
+            print(f" Retrieved {data['total_count']} posts from {data['servers_queried']} servers")
             
             # Display recent posts
             for post in data['posts'][:3]:
-                print(f"   📝 {post['user']}: {post['content'][:50]}...")
+                print(f"    {post['user']}: {post['content'][:50]}...")
         else:
-            print(f"❌ Failed to retrieve posts: {response.text}")
+            print(f" Failed to retrieve posts: {response.text}")
     except Exception as e:
-        print(f"❌ Error retrieving posts: {e}")
+        print(f" Error retrieving posts: {e}")
     
     # Test 4: Add comments
-    print("\n4️⃣ Testing Comments (Cross-server functionality)...")
+    print("\n4️ Testing Comments (Cross-server functionality)...")
     if created_posts:
         test_post_id = created_posts[0] if created_posts[0] else "test_post"
         
@@ -89,11 +89,11 @@ def test_system():
             try:
                 response = requests.post(f"{gateway_url}/posts/{test_post_id}/comments", json=comment)
                 if response.status_code == 201:
-                    print(f"✅ Comment added by {comment['user']}")
+                    print(f" Comment added by {comment['user']}")
                 else:
-                    print(f"❌ Failed to add comment: {response.text}")
+                    print(f" Failed to add comment: {response.text}")
             except Exception as e:
-                print(f"❌ Error adding comment: {e}")
+                print(f" Error adding comment: {e}")
             
             time.sleep(0.5)
         
@@ -102,32 +102,32 @@ def test_system():
             response = requests.get(f"{gateway_url}/posts/{test_post_id}/comments")
             if response.status_code == 200:
                 comments_data = response.json()
-                print(f"✅ Retrieved {len(comments_data['comments'])} comments")
+                print(f" Retrieved {len(comments_data['comments'])} comments")
             else:
-                print(f"❌ Failed to retrieve comments: {response.text}")
+                print(f" Failed to retrieve comments: {response.text}")
         except Exception as e:
-            print(f"❌ Error retrieving comments: {e}")
+            print(f" Error retrieving comments: {e}")
     
     # Test 5: System statistics
-    print("\n5️⃣ Testing System Statistics...")
+    print("\n5️Testing System Statistics...")
     try:
         response = requests.get(f"{gateway_url}/stats")
         if response.status_code == 200:
             stats = response.json()
-            print(f"✅ System Stats:")
-            print(f"   🖥️  Total Servers: {stats['total_servers']}")
-            print(f"   💚 Healthy Servers: {stats['healthy_servers']}")
-            print(f"   📝 Total Posts: {stats['total_posts']}")
-            print(f"   📊 Server Details: {len(stats['server_details'])} servers reporting")
+            print(f" System Stats:")
+            print(f" Total Servers: {stats['total_servers']}")
+            print(f"Healthy Servers: {stats['healthy_servers']}")
+            print(f"Total Posts: {stats['total_posts']}")
+            print(f"Server Details: {len(stats['server_details'])} servers reporting")
         else:
-            print(f"❌ Failed to get system stats: {response.text}")
+            print(f" Failed to get system stats: {response.text}")
     except Exception as e:
-        print(f"❌ Error getting system stats: {e}")
+        print(f" Error getting system stats: {e}")
     
     print("\n" + "=" * 50)
-    print("🎉 System testing completed!")
-    print("🌐 Access the frontend at: http://localhost:3000")
-    print("📊 View HDFS status at: http://localhost:9870")
+    print("System testing completed!")
+    print("Access the frontend at: http://localhost:3000")
+    print("View HDFS status at: http://localhost:9870")
 
 if __name__ == "__main__":
     test_system()

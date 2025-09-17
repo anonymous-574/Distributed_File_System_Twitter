@@ -24,7 +24,7 @@ print_error() {
 }
 
 print_step() {
-    echo -e "\n${BLUE}📌 $1${NC}"
+    echo -e "\n${BLUE} $1${NC}"
 }
 
 # Cleanup function
@@ -93,12 +93,12 @@ check_service "Frontend" "http://localhost:3000"
 
 print_step "System Status Check"
 echo "================================================="
-print_status "📊 HDFS NameNode Web UI: http://localhost:9870"
-print_status "🌐 Frontend Application: http://localhost:3000"
-print_status "🔗 API Gateway: http://localhost:8080"
-print_status "🖥️  App Server 1: http://localhost:5001"
-print_status "🖥️  App Server 2: http://localhost:5002"
-print_status "🖥️  App Server 3: http://localhost:5003"
+print_status "HDFS NameNode Web UI: http://localhost:9870"
+print_status "Frontend Application: http://localhost:3000"
+print_status "API Gateway: http://localhost:8080"
+print_status "App Server 1: http://localhost:5001"
+print_status "App Server 2: http://localhost:5002"
+print_status "App Server 3: http://localhost:5003"
 echo "================================================="
 
 print_step "Showing real-time logs (press Ctrl+C to exit)"
