@@ -96,12 +96,7 @@ The system handles user posts, comments, and multimedia content while ensuring h
    cd distributed-social-media
    ```
 
-2. **Make Scripts Executable**
-   ```bash
-   chmod +x setup.sh monitor.sh troubleshoot.sh
-   ```
-
-3. **Start the System**
+2. **Start the System**
    ```bash
    ./setup.sh
    ```
