@@ -30,18 +30,18 @@ The system handles user posts, comments, and multimedia content while ensuring h
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────────┐
 │   Frontend      │    │   API Gateway    │    │   App Servers       │
-│   (React/HTML)  │───▶│  Load Balancer   │───▶│  Server 1,2,3       │
+│   (React/HTML)  │───▶│  Load Balancer   │───▶│  Server 1,2,3      │
 │   Port: 3000    │    │   Port: 8080     │    │  Ports: 5001-5003   │
 └─────────────────┘    └──────────────────┘    └─────────────────────┘
                                                           │
                                                           ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    Hadoop HDFS Cluster                             │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐│
-│  │  NameNode   │  │  DataNode1  │  │  DataNode2  │  │  DataNode3  ││
-│  │ Port: 9870  │  │ Port: 9864  │  │ Port: 9865  │  │ Port: 9866  ││
-│  │ (Metadata)  │  │  (Storage)  │  │  (Storage)  │  │  (Storage)  ││
-│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘│
+│                    Hadoop HDFS Cluster                              │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐ │
+│  │  NameNode   │  │  DataNode1  │  │  DataNode2  │  │  DataNode3  │ │
+│  │ Port: 9870  │  │ Port: 9864  │  │ Port: 9865  │  │ Port: 9866  │ │
+│  │ (Metadata)  │  │  (Storage)  │  │  (Storage)  │  │  (Storage)  │ │
+│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘ │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
