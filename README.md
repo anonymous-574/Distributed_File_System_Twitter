@@ -95,23 +95,6 @@ The system handles user posts, comments, and multimedia content while ensuring h
    ./setup.sh
    ```
 
-
-### Manual Setup
-
-If you prefer manual control over the deployment:
-
-```bash
-# Build and start all services
-docker-compose up --build -d
-
-# Wait for services to initialize (approximately 2-3 minutes)
-sleep 180
-
-# Check system health
-curl http://localhost:8080/health
-curl http://localhost:9870  # HDFS NameNode UI
-```
-
 ### Accessing the Application
 
 Once deployed, access the system through:
